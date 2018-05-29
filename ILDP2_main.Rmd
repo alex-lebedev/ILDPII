@@ -88,7 +88,7 @@ nwarmup       = 1000
 nthin         = 1
 
 ### Run Model:
-myfit <- stan(file    = "/Users/alebedev/GitHub/CompModCourse/assignment/stan_models/bandit2arm_instr.stan",
+myfit <- stan(file    = "/Users/alebedev/GitHub/ILDP2_pilot/stan_models/bandit2arm_instr.stan",
               data    = dataList, 
               #                  pars    = parameters,
               warmup  = nwarmup,
