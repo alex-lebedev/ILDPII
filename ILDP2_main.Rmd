@@ -25,7 +25,13 @@ head(rdata)
 ## Emulate some artificial data based on subject 1
 ```{r, echo = F}
 rdata$gsr <- range01(rdata$gsr)
+rdata$revtrial <- 0
+rdata$revtrial[tail(which(rdata$block==1),1)+1] <- 1
+rdata$revtrial[tail(which(rdata$block==2),1)+1] <- 1
+rdata$revtrial[tail(which(rdata$block==3),1)+1] <- 1
 
+
+tail(which(rdata$block==1),1)
 rdata <- rbind(rdata,rdata,rdata,rdata,rdata,rdata,rdata,rdata,rdata,rdata)
 rdata$subject <- c(rep(1,max(rdata$trial)),
                    rep(2,max(rdata$trial)),
@@ -52,6 +58,7 @@ Tsubj <- as.vector(rep(0, numSubjs))
 response <- array(0, c(numSubjs, maxTrials) )
 stimulus <- array(0, c(numSubjs, maxTrials) )
 shock <- array(0, c(numSubjs, maxTrials) )
+revtrial <- array(0, c(numSubjs, maxTrials) )
 
 
 for (i in 1:numSubjs) {
@@ -62,6 +69,7 @@ for (i in 1:numSubjs) {
   response[i, 1:useTrials]   <- tmp$gsr
   stimulus[i, 1:useTrials]   <- tmp$stim
   shock[i, 1:useTrials]   <- tmp$shock
+  revtrial[i, 1:useTrials]   <- tmp$revtrial
 }
 
 
@@ -78,14 +86,14 @@ dataList <- list(
 ## Run the model
 ```{r, echo = F}
 # Set sampler parameters
-adapt_delta   = 0.99
-stepsize      = 1
-max_treedepth = 10
-nchain        = 4
-nthin         = 1
-niter         = 2000
-nwarmup       = 1000
-nthin         = 1
+#adapt_delta   = 0.99
+#stepsize      = 1
+#max_treedepth = 10
+#nchain        = 4
+#nthin         = 1
+#niter         = 2000
+#nwarmup       = 1000
+#nthin         = 1
 
 ### Run Model:
 myfit <- stan(file    = "/Users/alebedev/GitHub/ILDP2_pilot/stan_models/bandit2arm_instr.stan",

@@ -3,7 +3,8 @@ data {
   int<lower=1> T;               
   int<lower=1,upper=T> Tsubj[N];                 
   real<lower=0,upper=1> response[N,T];     
-  real outcome[N,T];  // no lower and upper bounds   
+  real<lower=0,upper=1> revtrial[N,T];  // indicates reversed trials
+  real shock[N,T];  // electric shocks   
 }
 
 transformed data {
