@@ -1,6 +1,8 @@
 ---
-title: "ILDP2: pilot"
-output: html_document
+title: 'ILDP2: pilot'
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ## Prepare the workspace for analysis:
