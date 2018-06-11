@@ -140,16 +140,12 @@ dataList <- list(
 #nthin         = 1
 
 ### Run Model:
-myfit <- stan(file    = "/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_uninstr.stan",
-              data    = dataList, 
-              #                  pars    = parameters,
-              warmup  = nwarmup,
-              #                  init    = genInitList, 
-              iter    = niter, 
-              chains  = nchain,
-              thin    = nthin,
-              control = list(adapt_delta   = adapt_delta, 
-                             max_treedepth = max_treedepth, 
-                             stepsize      = stepsize) )
+mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_uninstr_multipleSubj.stan',   
+                  data=dataList, 
+                  #                pars=parameters,
+                  iter=2000, 
+                  chains=4, 
+                  thin=1
+)
 ```
 
