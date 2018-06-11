@@ -29,7 +29,7 @@ head(rdata)
 dataList <- list(
   N             = 1,
   T             = 80,
-  response      = as.numeric(rdata$gsr),
+  response      = as.numeric(range01(rdata$gsr)),
   stimulus      = as.integer(rdata$stim),
   shock         = as.integer(rdata$shock)
 )

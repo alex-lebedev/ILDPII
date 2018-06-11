@@ -2,7 +2,7 @@ data {
   int<lower=1> T;               
   int<lower=1,upper=2> stimulus[T];     
   int shock[T];  // electric shocks 
-  real response[T];  // SCR response  
+  real response[T]; 
 }
 
 transformed data {
