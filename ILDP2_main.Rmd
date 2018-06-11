@@ -49,7 +49,7 @@ plot(mysamples)
 
 ```
 
-# Getting the samples
+## Getting the samples
 ```{r}
 pairs(mysamples)
 traceplot(mysamples)
