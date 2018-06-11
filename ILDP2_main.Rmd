@@ -163,7 +163,6 @@ dataList <- list(
 
 mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_instr_singleSubj.stan',   
                   data=dataList, 
-                  #                pars=parameters,
                   iter=2000, 
                   chains=4, 
                   thin=1
