@@ -64,7 +64,7 @@ traceplot(mysamples)
 
 
 
-# MULTIPLE SUBJECTS (UNFINISHED)
+# MULTIPLE SUBJECTS (TO BE CHECKED)
 
 ## Emulate some artificial data based on subject 1
 ```{r, echo = F}
