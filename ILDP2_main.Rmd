@@ -169,5 +169,11 @@ mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_instr_
 )
 ```
 
+## Plot the results:
+```{r}
+print(mysamples)
+plot(mysamples)
+
+```
 
 

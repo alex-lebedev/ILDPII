@@ -15,21 +15,21 @@ parameters {
   // Subject-lresponseel raw parameters (for Matt trick)
   real A_pr;    // learning rate
   real k_pr; 
-  real P_pr;    
+  real<lower=0, upper=1> P_pr;    
 
 }
 
 model{
 A_pr   ~ normal(0,1);
 k_pr ~ normal(0,1);
-P_pr ~ normal(0,1);
+P_pr ~ normal(0.5,1);
 
 for (i in 1:1) {
     vector[2] EV; // expected value
     real PE;      // prediction error
     
     EV = initV;
-  for (t in 1:80) {       
+  for (t in 1:T) {       
     if (revtrial[t]==1){
       response[t] ~ normal( EV[stimulus[t]] * k_pr,1);
       PE = shock[t] - EV[stimulus[t]];
