@@ -22,6 +22,48 @@ load('/Users/alebedev/GitHub/ILDP2_pilot/data/rdata.rda')
 head(rdata)
 ```
 
+## Single subject:
+```{r, echo = F}
+dataList <- list(
+  N             = 1,
+  T             = 80,
+  response      = as.numeric(rdata$gsr),
+  stimulus      = as.integer(rdata$stim),
+  shock         = as.integer(rdata$shock)
+)
+
+mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_uninstr_singleSubj.stan',   
+                  data=dataList, 
+                  #                pars=parameters,
+                  iter=2000, 
+                  chains=4, 
+                  thin=1
+)
+```
+
+
+## Plot the results:
+```{r}
+print(mysamples)
+plot(mysamples)
+
+```
+
+# Getting the samples
+```{r}
+pairs(mysamples)
+traceplot(mysamples)
+
+```
+
+
+
+
+
+
+
+# MULTIPLE SUBJECTS (UNFINISHED)
+
 ## Emulate some artificial data based on subject 1
 ```{r, echo = F}
 rdata$gsr <- range01(rdata$gsr)
