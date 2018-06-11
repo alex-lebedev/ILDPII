@@ -24,7 +24,7 @@ load('/Users/alebedev/GitHub/ILDP2_pilot/data/rdata.rda')
 head(rdata)
 ```
 
-## Single subject:
+## Single subject (UNINSTRUCTED version):
 ```{r, echo = F}
 dataList <- list(
   N             = 1,
@@ -129,15 +129,6 @@ dataList <- list(
 
 ## Run the model
 ```{r, echo = F}
-# Set sampler parameters
-#adapt_delta   = 0.99
-#stepsize      = 1
-#max_treedepth = 10
-#nchain        = 4
-#nthin         = 1
-#niter         = 2000
-#nwarmup       = 1000
-#nthin         = 1
 
 ### Run Model:
 mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_uninstr_multipleSubj.stan',   
@@ -148,4 +139,36 @@ mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_uninst
                   thin=1
 )
 ```
+
+## Single subject (INSTRUCTED version):
+```{r, echo = F}
+load('/Users/alebedev/GitHub/ILDP2_pilot/data/rdata.rda')
+
+rdata$revtrial <- 0
+rdata[which(rdata$block==2)[1],'revtrial'] <- 1
+rdata[which(rdata$block==3)[1],'revtrial'] <- 1
+rdata[which(rdata$block==4)[1],'revtrial'] <- 1
+
+
+
+
+dataList <- list(
+  N             = 1,
+  T             = 80,
+  response      = as.numeric(range01(rdata$gsr)),
+  stimulus      = as.integer(rdata$stim),
+  shock         = as.integer(rdata$shock),
+  revtrial      = as.integer(rdata$revtrial)
+)
+
+mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_instr_singleSubj.stan',   
+                  data=dataList, 
+                  #                pars=parameters,
+                  iter=2000, 
+                  chains=4, 
+                  thin=1
+)
+```
+
+
 
