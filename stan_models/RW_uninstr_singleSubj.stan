@@ -1,11 +1,8 @@
 data {
- //int<lower=1> N;
   int<lower=1> T;               
- // int<lower=1,upper=T> Tsubj[N];                 
   int<lower=1,upper=2> stimulus[T];     
- // real<lower=0,upper=1> rresponsetrial[N,T];  // indicates rresponseersed trials
   int shock[T];  // electric shocks 
-  real response[T];  // electric shocks   
+  real response[T];  // SCR response  
 }
 
 transformed data {
