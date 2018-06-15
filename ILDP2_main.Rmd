@@ -68,7 +68,7 @@ traceplot(mysamples)
 
 ## Emulate some artificial data based on subject 1
 ```{r, echo = F}
-rdata$gsr <- range01(rdata$gsr)
+rdata$gsr <- rdata$gsr
 rdata$revtrial <- 0
 rdata$revtrial[tail(which(rdata$block==1),1)+1] <- 1
 rdata$revtrial[tail(which(rdata$block==2),1)+1] <- 1
@@ -129,16 +129,91 @@ dataList <- list(
 
 ## Run the model
 ```{r, echo = F}
+adapt_delta   = 0.95
+stepsize      = 1
+max_treedepth = 10
 
 ### Run Model:
 mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_uninstr_multipleSubj.stan',   
                   data=dataList, 
                   #                pars=parameters,
-                  iter=2000, 
+                  iter=3000, 
                   chains=4, 
-                  thin=1
+                  thin=1,     
+                  control = list(adapt_delta   = adapt_delta, 
+                                 max_treedepth = max_treedepth, 
+                                 stepsize      = stepsize) 
 )
 ```
+## 
+```{r, echo = F}
+rdata$revtrial <- 0
+
+for (i in 1:10){
+  rdata[which(rdata$block==2 & rdata$subject==i)[1],'revtrial'] <- 1
+  rdata[which(rdata$block==3 & rdata$subject==i)[1],'revtrial'] <- 1
+  rdata[which(rdata$block==4 & rdata$subject==i)[1],'revtrial'] <- 1
+}
+
+
+subjList <- unique(rdata[,'subject'])  # list of subjects x blocks
+numSubjs <- length(subjList)  # number of subjects
+maxTrials <- max(rdata$trial)
+
+
+Tsubj <- as.vector(rep(0, numSubjs))
+response <- array(0, c(numSubjs, maxTrials) )
+stimulus <- array(0, c(numSubjs, maxTrials) )
+shock <- array(0, c(numSubjs, maxTrials) )
+revtrial <- array(0, c(numSubjs, maxTrials) )
+
+
+for (i in 1:numSubjs) {
+  curSubj      <- subjList[i]
+  Tsubj[i] <- sum(rdata$subject == curSubj)  # Tsubj[N]
+  useTrials    <- Tsubj[i]
+  tmp          <- subset(rdata, rdata$subject == curSubj)
+  response[i, 1:useTrials]   <- tmp$gsr
+  stimulus[i, 1:useTrials]   <- tmp$stim
+  shock[i, 1:useTrials]   <- tmp$shock
+  revtrial[i, 1:useTrials]   <- tmp$revtrial
+}
+
+
+dataList <- list(
+  N             = numSubjs,
+  T             = maxTrials,
+  response      = response,
+  stimulus      = stimulus,
+  shock         = shock,
+  Tsubj         = Tsubj
+)
+```
+
+
+## Run the model
+```{r, echo = F}
+adapt_delta   = 0.95
+stepsize      = 1
+max_treedepth = 10
+
+### Run Model:
+mysamples <- stan(file='/Users/alebedev/GitHub/ILDP2_pilot/stan_models/RW_instr_multipleSubj.stan',   
+                  data=dataList, 
+                  #                pars=parameters,
+                  iter=3000, 
+                  chains=4, 
+                  thin=1,     
+                  control = list(adapt_delta   = adapt_delta, 
+                                 max_treedepth = max_treedepth, 
+                                 stepsize      = stepsize) 
+)
+```
+
+
+
+
+
 
 ## Single subject (INSTRUCTED version):
 ```{r, echo = F}
