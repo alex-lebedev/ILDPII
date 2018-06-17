@@ -2,7 +2,8 @@
 
 
 ### Improtant files:
- * .../stan_models/bandit2arm_instr.stan ('rstan' model to be modified. Will have to rename it)
+ * .../stan_models/RW_instr_multipleSubj.stan (Instructed version of Stan Rescorla-Wagner model, hierarchical)
+ * .../stan_models/RW_uninstr_multipleSubj.stan (Uninstructed version of Stan Rescorla-Wagner model, hierarchical)
  * .../data/rdata.rda (Raw data containing information for 1 subject)
  * .../ILDP2_main.Rmd (Script contining main preparatory and analytical steps)
 ### Reference:
