@@ -1,5 +1,8 @@
 # ILDP2_pilot
 
+### Pilot_1
+(pilot Study 1 materials)
+
 
 ### Improtant files:
  * .../stan_models/RW_instr_multipleSubj.stan (Instructed version of Stan Rescorla-Wagner model, hierarchical)
