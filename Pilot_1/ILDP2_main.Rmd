@@ -20,7 +20,7 @@ range01 <- function(x){(x-min(x))/(max(x)-min(x))} # function that scales at {0;
 ## Load and assess the data
  (trial - trial number; block - block number; stim - face type [1 or 2]; shock - "shock administered ?"; gsr - galvanic skin response; subject - subject number)
 ```{r, echo = T}
-load('/Users/alebedev/GitHub/ILDP2_pilot/data/rdata.rda')
+load('/Users/alebedev/GitHub/ILDPII/Pilot_1/data/rdata.rda')
 head(rdata)
 ```
 
@@ -29,7 +29,7 @@ head(rdata)
 dataList <- list(
   N             = 1,
   T             = 80,
-  response      = as.numeric(range01(rdata$gsr)),
+  response      = as.numeric(sqrt(rdata$gsr)),
   stimulus      = as.integer(rdata$stim),
   shock         = as.integer(rdata$shock)
 )

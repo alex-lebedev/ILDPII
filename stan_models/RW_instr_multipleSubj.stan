@@ -11,8 +11,8 @@ data {
 transformed data {
   vector[2] initV;  // initial values for response
   initV = rep_vector(0.0, 2);
-//  initV[1] = 0.75;
-//  initV[2] = 0.25;
+  initV[1] = 0.75;
+  initV[2] = 0.25;
 }
 
 parameters {

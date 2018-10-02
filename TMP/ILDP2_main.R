@@ -5,13 +5,19 @@ library(RSEIS)
 library(xlsx)
 library(ggplot2)
 
-rdat <- readMat('ildp2_pilot_gsr.mat')$rdat
+rdat <- readMat('/Users/alebedev/GitHub/ILDPII/Pilot_2/ACQ/sub-00016-2018-09-05.acq.mat')$channels[2][[1]][[1]][[1]]
+shock <- readMat('/Users/alebedev/GitHub/ILDPII/Pilot_2/ACQ/sub-00016-2018-09-05.acq.mat')$channels[3][[1]][[1]][[1]]
 
-endp <- which(rdat[,1]< c(mean(rdat[,1]) - 3*sd(rdat[,1])))[1]-500
-rdat <- rdat[1:endp,]
-gsr <- rdat[,1]
+# s14 - A2ins gsr<-rdat[1,100000:dim(rdat)[2]]; gsr_d <- detrend(gsr); shock<-shock[1,100000:dim(shock)[2]]; 
+# s15 - A2unins
+# s16 - A1ins
+# s17 - A2ins
+
+#endp <- which(rdat[,1]< c(mean(rdat[,1]) - 3*sd(rdat[,1])))[1]-500
+#rdat <- rdat[1:endp,]
+gsr <- rdat[1,]
 gsr_d <- detrend(gsr)
-shock <- rdat[,3]
+shock <- shock[1,]
 
 d <- as.data.frame(cbind(gsr, gsr_d,shock))
 
@@ -20,7 +26,7 @@ d$ms <- as.numeric(as.vector(row.names(d)))
 # show data with two shock trials:
 #ts.plot(d[c(16000*5):c(16000*9),2:3],gpars=list(yaxt='n', col=c(1:2)))
 
-timing <- read.xlsx2('/Users/alebedev/GitHub/ILDP2_pilot/pilot_TaskDesign.xlsx',1)
+timing <- read.xlsx2('/Users/alebedev/GitHub/ILDPII/Pilot_2/pilot2_TaskDesign.xlsx',1)
 
 timing$trial <- as.numeric(as.vector(timing$trial))
 timing$shockstart <- as.numeric(as.vector(timing$shockstart))
@@ -42,7 +48,7 @@ timing_long$ms <- as.numeric(as.vector(row.names(timing_long)))
 timing_long$shock[is.na(timing_long$shock)]<-0
 
 # max(timing$shockstart)*2
-i=41; tmp <- subset(dd, dd$trial == i); ts.plot(tmp$gsr)
+#i=41; tmp <- subset(dd, dd$trial == i); ts.plot(tmp$gsr)
 
 
 
@@ -81,8 +87,52 @@ for (i in 1:max(dd$trial)){
 
 
 final_d <- merge(final_df, timing, by='trial')
-
 final_d$cs <- 0
+final_d$shock[final_d$shock==0.2]<-1; final_d$revtrial <- 0;
+final_d$revtrial[which(final_d$revInst=='Sambandet mellan stimulit och elstötar kommer nu att omvändas (Tryck MELLANSLAG)')+1]<-1
+
+s16 <- data.frame(subject=16,
+                  trial=final_d$trial,stimulus=as.numeric(final_d$stype),
+                  response=sqrt(final_d$gsr), shock=final_d$shock,
+                  revtrial=final_d$revtrial)
+
+
+
+
+
+subjList <- unique(s16[,'subject'])  # list of subjects x blocks
+numSubjs <- length(subjList)  # number of subjects
+maxTrials <- max(s16$trial)
+
+for (i in 1:numSubjs) {
+  curSubj      <- subjList[i]
+  Tsubj[i] <- sum(s16$subject == curSubj)  # Tsubj[N]
+  useTrials    <- Tsubj[i]
+  tmp          <- subset(s16, s16$subject == curSubj)
+  response[i, 1:useTrials]   <- tmp$response
+  stimulus[i, 1:useTrials]   <- tmp$stimulus
+  shock[i, 1:useTrials]   <- tmp$shock
+  revtrial[i, 1:useTrials]   <- tmp$revtrial
+}
+
+dataList <- list(
+  N             = numSubjs,
+  T             = maxTrials,
+  response      = response,
+  stimulus      = stimulus,
+  shock         = shock,
+  Tsubj         = Tsubj,
+  revtrial      = revtrial
+)
+
+
+
+
+
+
+
+
+
 
 final_d$cs[is.element(final_d$block,c('block1','block3')) & final_d$face=='stim/FaceA.JPG']<-1
 final_d$cs[is.element(final_d$block,c('block2','block4')) & final_d$face=='stim/FaceB.JPG']<-1
@@ -107,7 +157,7 @@ d <- aggregate(. ~ timing+cs, ddd[,], mean)
 ts.plot(cbind(d$gsr_d[d$cs==0],d$gsr_d[d$cs==1]), gpars=list(col=c(1:2)))
   
 
-ddd$cs <- as.factor(ddd$cs+1)  
+ddd$cs <- as.factor(as.numeric(as.vector((ddd$cs)))+1)
 
 ddd1 <- ddd
 
@@ -128,6 +178,7 @@ ggplot(ddd1) +
   
   stat_smooth(aes(x = timing, y = gsr_d, color=cs, method = "loess"), size=1, se=T, span=0.95, data=ddd1) +
   theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
 
 
 
