@@ -30,12 +30,12 @@ parameters {
 transformed parameters {
   // subject-lresponseel parameters
   vector<lower=0,upper=1>[N] A;
-  vector<lower=0,upper=100>[N] k;
+  vector<lower=0,upper=10>[N] k;
   vector<lower=0,upper=1>[N] P;
 
    for (i in 1:N) {
   A[i]   = Phi_approx( mu_p[1]  + sigma[1]  * A_pr[i]);
-  k[i]   = Phi_approx( mu_p[2]  + sigma[2]  * k_pr[i])*100; // scale according to upper on line 28
+  k[i]   = Phi_approx( mu_p[2]  + sigma[2]  * k_pr[i])*10; // scale according to upper on line 28
   P[i]   = Phi_approx( mu_p[3]  + sigma[3]  * P_pr[i]);
    }
 }

@@ -39,15 +39,15 @@ dataList <- list(
 
 
 
-adapt_delta   = 0.95
-stepsize      = 1
-max_treedepth = 10
+adapt_delta   = 0.99
+stepsize      = 0.1
+max_treedepth = 12
 
 ### Run Model:
 mysamples <- stan(file='/Users/alebedev/GitHub/ILDPII/stan_models/RW_instr_multipleSubj.stan',   
                   data=dataList, 
                   #                pars=parameters,
-                  iter=1000, 
+                  iter=50000, warmup = 48500,
                   chains=4, 
                   thin=1,     
                   control = list(adapt_delta   = adapt_delta, 
@@ -57,14 +57,13 @@ mysamples <- stan(file='/Users/alebedev/GitHub/ILDPII/stan_models/RW_instr_multi
 
 # Traceplots look ok except perhaps for sigmas:
 traceplot(mysamples)
-
+traceplot(mysamples, par=c('P_pr', 'P'))
 
 # However, the estimates are completely off:
 plot(mysamples)
 
-# And so are instruction-effect paramteres:
-dout <- summary(mysamples)
-parms <- dout$summary[,c('mean', 'sd')]
-df <- as.data.frame((parms[grep('^P_pr', rownames(parms)),'mean']))
-df <- as.numeric(as.vector(df[,1]))
-df
+
+dd <- extract(mysamples) # estract the estimated parameters
+mean(dd$P[,3]) # mean of the P-parameter
+
+
