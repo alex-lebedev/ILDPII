@@ -30,12 +30,12 @@ parameters {
 transformed parameters {
   // subject-lresponseel parameters
   vector<lower=0,upper=1>[N] A;
-  vector<lower=0,upper=10>[N] k;
+  vector<lower=0,upper=1>[N] k;
   vector<lower=0,upper=1>[N] P;
 
    for (i in 1:N) {
   A[i]   = Phi_approx( mu_p[1]  + sigma[1]  * A_pr[i]);
-  k[i]   = Phi_approx( mu_p[2]  + sigma[2]  * k_pr[i])*10; // scale according to upper on line 28
+  k[i]   = Phi_approx( mu_p[2]  + sigma[2]  * k_pr[i])*1; // scale according to upper of k
   P[i]   = Phi_approx( mu_p[3]  + sigma[3]  * P_pr[i]);
    }
 }
@@ -48,7 +48,7 @@ model{
   k_pr ~ normal(0, 1);
   A_pr ~ normal(0, 1);
   P_pr ~ normal(0, 1);
-  sigma0 ~ cauchy(0, 100); // depends on scale of response
+  sigma0 ~ cauchy(0, 10); // depends on scale of response
 
 for (i in 1:N) {
     vector[2] EV; // expected value

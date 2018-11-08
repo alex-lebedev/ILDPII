@@ -5,8 +5,8 @@ library(RSEIS)
 library(xlsx)
 library(ggplot2)
 
-rdat <- readMat('/Users/alebedev/GitHub/ILDPII/Pilot_2/ACQ/sub-00016-2018-09-05.acq.mat')$channels[2][[1]][[1]][[1]]
-shock <- readMat('/Users/alebedev/GitHub/ILDPII/Pilot_2/ACQ/sub-00016-2018-09-05.acq.mat')$channels[3][[1]][[1]][[1]]
+rdat <- readMat('/Users/alebedev/GitHub/ILDPII/Pilot_2/ACQ/sub-00015-2018-09-05.acq.mat')$channels[2][[1]][[1]][[1]]
+shock <- readMat('/Users/alebedev/GitHub/ILDPII/Pilot_2/ACQ/sub-00015-2018-09-05.acq.mat')$channels[3][[1]][[1]][[1]]
 
 # s14 - A2ins gsr<-rdat[1,100000:dim(rdat)[2]]; gsr_d <- detrend(gsr); shock<-shock[1,100000:dim(shock)[2]]; 
 # s15 - A2unins
@@ -21,12 +21,16 @@ shock <- shock[1,]
 
 d <- as.data.frame(cbind(gsr, gsr_d,shock))
 
+# Plot and cut calibration shocks (if happened):
+#ts.plot(d$shock)
+#d <- d[200000:dim(d)[1],]
+
 #ts.plot(d,gpars=list(yaxt='n', col=c(1:3)))
 d$ms <- as.numeric(as.vector(row.names(d)))
 # show data with two shock trials:
 #ts.plot(d[c(16000*5):c(16000*9),2:3],gpars=list(yaxt='n', col=c(1:2)))
 
-timing <- read.xlsx2('/Users/alebedev/GitHub/ILDPII/Pilot_2/pilot2_TaskDesign.xlsx',1)
+timing <- read.xlsx2('/Users/alebedev/GitHub/ILDPII/Pilot_2/pilot2_TaskDesign.xlsx',1) # ,2 for A2
 
 timing$trial <- as.numeric(as.vector(timing$trial))
 timing$shockstart <- as.numeric(as.vector(timing$shockstart))
@@ -59,7 +63,7 @@ timing_long$shock[is.na(timing_long$shock)]<-0
 
 # ms until the first electric shock (theory):
 timing_long$ms[which(timing_long$shock>0)[1]]
-# ms until the first electric shock (practice: actual gsr data):
+# ms until the first electric shock (practice: actual  data):
 d$ms[which(d$shock>0)[1]]
 
 # Select based on timing model:

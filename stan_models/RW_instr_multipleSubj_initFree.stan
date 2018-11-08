@@ -43,7 +43,7 @@ model{
   k_pr ~ normal(0, 1);
   A_pr ~ normal(0, 1);
   P_pr ~ normal(0, 1);
-  sigma0 ~ cauchy(0, 100); // depends on scale of response
+  sigma0 ~ cauchy(0, 10); // depends on scale of response
   // Initial EV-values:
   EVinit1 ~ beta(3,3);
   EVinit2 ~ beta(3,3);
