@@ -16,8 +16,8 @@ parameters {
   // Subject-lresponseel raw parameters (for Matt trick)
   vector[N] A_pr;    // learning rate
   vector[N] k_pr;  // inverse temperature
-  vector[N] EVinit1;
-  vector[N] EVinit2;
+  vector<lower=0,upper=1> [N] EVinit1;
+  vector<lower=0,upper=1> [N] EVinit2;
 }
 
 transformed parameters {

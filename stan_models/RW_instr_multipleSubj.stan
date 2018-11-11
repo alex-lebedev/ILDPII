@@ -23,7 +23,7 @@ parameters {
   
   // Subject-lresponseel raw parameters (for Matt trick)
   vector[N] A_pr;    // learning rate
-  vector[N] k_pr;  // inverse temperature
+  vector[N] k_pr;  // scaling factor
   vector[N] P_pr;  // instruction effect
 }
 
@@ -60,9 +60,11 @@ for (i in 1:N) {
       EV[1] = P[i] * EV[2] + (1-P[i]) * EV[1];
       EV[2] = P[i] * EV[1] + (1-P[i]) * EV[2];
     }
-
-    // Response
+    
+    else if (shock[i,t]==0){
+       // Response
     response[i,t] ~ normal( EV[stimulus[i,t]] * k[i],sigma0);
+    }
     // prediction error 
     PE = shock[i,t] - EV[stimulus[i,t]];
     // value updating (learning) 
