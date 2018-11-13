@@ -270,5 +270,5 @@ mysamples <- stan(file='/Users/alebedev/GitHub/ILDPII/stan_models/RW_instr_multi
 dd <- extract(mysamples) 
 rhos_uninst_il<- apply(dd$P,2,mean)
 mysamplesUNINST_IL <- mysamples
-save('mysamplesUNINST_IL', 'rhos_inst_il',file= '/Users/alebedev/GitHub/ILDPII/Pilot_2/mysamplesUNINST_IL.rda')
+save('mysamplesUNINST_IL', 'rhos_uninst_il',file= '/Users/alebedev/GitHub/ILDPII/Pilot_2/mysamplesUNINST_IL.rda')
 
