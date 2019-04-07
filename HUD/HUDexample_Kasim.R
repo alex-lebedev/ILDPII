@@ -25,3 +25,9 @@ beta(fit.alldrugs) # standardized coeffs
 fit.full <- glm(DP ~ drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim+sex+age, data=SCREEN_DF)
 summary(fit.full)
 plot_coefs(fit.full, scale = TRUE)
+
+
+# BADE:
+fit <- (glm(EII2~age+sex+ALC_prox+TOB_prox+CAN_prox+MDMA_prox+STIM_prox+PSY_prox+
+           ALC_freq+TOB_freq+CAN_freq+MDMA_freq+STIM_freq+PSY_freq, data=HUDMAIN_df))
+plot_coefs(fit, scale = TRUE)
