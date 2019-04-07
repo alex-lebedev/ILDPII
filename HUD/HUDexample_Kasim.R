@@ -31,3 +31,19 @@ plot_coefs(fit.full, scale = TRUE)
 fit <- (glm(EII2~age+sex+ALC_prox+TOB_prox+CAN_prox+MDMA_prox+STIM_prox+PSY_prox+
            ALC_freq+TOB_freq+CAN_freq+MDMA_freq+STIM_freq+PSY_freq, data=HUDMAIN_df))
 plot_coefs(fit, scale = TRUE)
+
+
+
+# (Below are the plots for SEPI. Keep in mind that the distributuions are not transformed to meet normality criteria):
+boxplot(SCREEN_DF$SEPI_tot_drug[SCREEN_DF$drug_psychedelics==0],SCREEN_DF$SEPI_tot_drug[SCREEN_DF$drug_psychedelics==1])
+points(cbind(jitter(rep(1, table(SCREEN_DF$drug_psychedelics==0)[2])), SCREEN_DF$SEPI_tot_drug[SCREEN_DF$drug_psychedelics==0]), pch=16)
+points(cbind(jitter(rep(2, table(SCREEN_DF$drug_psychedelics==1)[2])), SCREEN_DF$SEPI_tot_drug[SCREEN_DF$drug_psychedelics==1]), pch=16)
+
+boxplot(SCREEN_DF$SEPI_tot[SCREEN_DF$drug_psychedelics==0],SCREEN_DF$SEPI_tot[SCREEN_DF$drug_psychedelics==1])
+points(cbind(jitter(rep(1, table(SCREEN_DF$drug_psychedelics==0)[2])), SCREEN_DF$SEPI_tot[SCREEN_DF$drug_psychedelics==0]), pch=16)
+points(cbind(jitter(rep(2, table(SCREEN_DF$drug_psychedelics==1)[2])), SCREEN_DF$SEPI_tot[SCREEN_DF$drug_psychedelics==1]), pch=16)
+
+
+boxplot(SCREEN_DF$SEPI_tot_drug[SCREEN_DF$drug_psychedelics==0],SCREEN_DF$SEPI_tot_drug[SCREEN_DF$drug_psychedelics==1])
+points(cbind(jitter(rep(1, table(SCREEN_DF$drug_psychedelics==0)[2])), SCREEN_DF$SEPI_tot_drug[SCREEN_DF$drug_psychedelics==0]), pch=16)
+points(cbind(jitter(rep(2, table(SCREEN_DF$drug_psychedelics==1)[2])), SCREEN_DF$SEPI_tot_drug[SCREEN_DF$drug_psychedelics==1]), pch=16)
