@@ -1,15 +1,13 @@
 
 # Install packages:
 #install.packages('jtools')
-#install.packages('boom', dependencies=T)
+#install.packages('broom', dependencies=T)
 
 # Load libraries:
 library(reghelper)
 library(ggplot2)
 library(ggstance)
 library(radarchart)
-library(jtools)
-library(broom)
 
 # Load data:
 load('/Users/alebedev/Documents/Projects/HUD/HUD.rda')
