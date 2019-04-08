@@ -1,7 +1,7 @@
 
 # Install packages:
 #install.packages('jtools')
-#install.packages('broom', dependencies=T)
+#install.packages('broom')
 
 # Load libraries:
 library(reghelper)
