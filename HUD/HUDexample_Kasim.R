@@ -1,3 +1,6 @@
+# clear workspace:
+rm(list=ls())
+
 # Load libraries:
 library(reghelper)
 library(ggplot2)
@@ -6,30 +9,56 @@ library(radarchart)
 
 # Load data:
 load('/Users/alebedev/Documents/Projects/HUD/HUD_anonymized.rda')
+# Selecting subsamples of those without any psychiatric diagnoses:
+SCREEN_df_noPsych <- subset(SCREEN_df, SCREEN_df$PsychDiagAny==0)
+CONSP_df_noPsych <- subset(CONSP_df, CONSP_df$PsychDiagAny==0)
 
-# Two-sample t-test: 
+#########################
+### Group comparisons ###
+#########################
+
+### Whole sample:
+# T-test: 
 t.test(SCREEN_df$DP[SCREEN_df$drug_psychedelics==0],SCREEN_df$DP[SCREEN_df$drug_psychedelics==1])
-
 # Plot:
 boxplot(SCREEN_df$DP[SCREEN_df$drug_psychedelics==0],SCREEN_df$DP[SCREEN_df$drug_psychedelics==1])
 points(cbind(jitter(rep(1, table(SCREEN_df$drug_psychedelics==0)[2])), SCREEN_df$DP[SCREEN_df$drug_psychedelics==0]), pch=16)
 points(cbind(jitter(rep(2, table(SCREEN_df$drug_psychedelics==1)[2])), SCREEN_df$DP[SCREEN_df$drug_psychedelics==1]), pch=16)
 
 
-# Fit GLM:
-fit.alldrugs <- glm(DP ~ drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim, data=SCREEN_df)
-summary(fit.alldrugs)
-beta(fit.alldrugs) # standardized coeffs
+# Two-sample t-test: 
+t.test(SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0],SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1])
+# Plot:
+boxplot(SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0],SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1])
+points(cbind(jitter(rep(1, table(SCREEN_df_noPsych$drug_psychedelics==0)[2])), SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==0]), pch=16)
+points(cbind(jitter(rep(2, table(SCREEN_df_noPsych$drug_psychedelics==1)[2])), SCREEN_df_noPsych$DP[SCREEN_df_noPsych$drug_psychedelics==1]), pch=16)
 
-# With demographics:
-fit.full <- glm(DP ~ drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim+sex+age, data=SCREEN_df)
-summary(fit.full)
-plot_coefs(fit.full, scale = TRUE)
+# DP:
+# DP-GLM1 (whole sample):
+fit.alldrugs <- glm(DP ~ age+sex+drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim, data=SCREEN_df)
+plot_coefs(fit.alldrugs, scale = TRUE)+xlim(limits = c(-1, 1))
+# DP-GLM2 (no psychiatric background):
+fit.alldrugs <- glm(DP ~ age+sex+drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim, data=SCREEN_df_noPsych)
+plot_coefs(fit.alldrugs, scale = TRUE)+xlim(limits = c(-1, 1))
+
+
+###############################
+####  Continious variables ####
+### (overall drug exposure) ###
+###############################
+# GLM1 (whole sample):
+fit.alldrugs <- glm(DP ~ age+sex+ALC_freqprox+TOB_freqprox+CAN_freqprox+MDMA_freqprox+STIM_freqprox+OPI_freqprox+PSY_freqprox, data=CONSP_df)
+plot_coefs(fit.alldrugs, scale = TRUE)+xlim(limits = c(-1, 1))
+# GLM2 (no psychiatric background):
+fit.alldrugs <- glm(DP ~ age+sex+ALC_freqprox+TOB_freqprox+CAN_freqprox+MDMA_freqprox+STIM_freqprox+OPI_freqprox+PSY_freqprox, data=CONSP_df_noPsych)
+plot_coefs(fit.alldrugs, scale = TRUE)+xlim(limits = c(-1, 1))
+
+
+
 
 
 # BADE:
-fit <- (glm(EII2~age+sex+ALC_prox+TOB_prox+CAN_prox+MDMA_prox+STIM_prox+PSY_prox+
-           ALC_freq+TOB_freq+CAN_freq+MDMA_freq+STIM_freq+PSY_freq, data=HUDMAIN_df))
+fit <- (glm(EII2~age+sex+ALC_freqprox+TOB_freqprox+CAN_freqprox+MDMA_freqprox+STIM_freqprox+PSY_freqprox, data=HUDMAIN_df))
 plot_coefs(fit, scale = TRUE)
 
 
@@ -127,4 +156,17 @@ chartJSRadar(scores=dfp, labelSize=20, height=700,
              main = paste('Ich-Störungen (EPI) and Psychedelic Drug Use (', 'n1 = ', table(SCREEN_df$group)['NP'],', n2 = ',
                           table(SCREEN_df$group)['PP'],')',sep=''),
              colMatrix = cbind(c(54,145,109),c(202,66,16)),lineAlpha=5,polyAlpha=0.3)
+
+
+##################
+### SUPPLEMENT ###
+##################
+
+# Interaction with Openness:
+load('/Users/alebedev/Documents/Projects/HUD/HUD.rda')
+tmp <- merge(SCREEN_df, SCRFU_df[,c('email', 'O')], by='email', all=T)
+summary((glm(DP~group*O, data=tmp)))
+
+
+
 
