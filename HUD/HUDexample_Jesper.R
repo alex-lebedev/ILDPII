@@ -8,7 +8,7 @@ library(ggstance)
 library(radarchart)
 library(psych)
 library(xlsx)
-library(nlme
+library(nlme)
 
 # Load data:
 load('/Users/alebedev/Documents/Projects/HUD/HUD_anonymized.rda')
