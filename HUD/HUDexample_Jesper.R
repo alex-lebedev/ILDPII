@@ -20,7 +20,7 @@ SCRFU_df_Jesper <- read.xlsx2('~/Downloads/HUD_anonymized_cleaned.xlsx',2)
 SCREEN_df_noPsych <- subset(SCREEN_df, SCREEN_df$PsychDiagAny==0)
 CONSP_df_noPsych <- subset(CONSP_df, CONSP_df$PsychDiagAny==0)
 
-dd <- merge(SCRFU_df,SCRFU_df_Jesper[,c('ID', 'surveyfoundout')], by = 'ID')      
+dd <- merge(SCRFU_df,SCRFU_df_Jesper[,c('ID', 'surveyfoundout', 'education')], by = 'ID')      
 dd <- dd[!duplicated(dd$ID),]              
 # Visual
 dd$psyVisual[dd$psyVisual<0]<-0        
@@ -38,6 +38,19 @@ table(dd$psyAuditory==2)[2]/sum(table(dd$psyAuditory>0))
 table(dd$psyAuditory==3)[2]/sum(table(dd$psyAuditory>0))
 pie(table(dd$psyAuditory),labels =c(''), col=c('white', 'lightgrey','darkgrey','black'))        
 #dd <- subset(dd, dd$surveyfoundout!='HPPD Support Group')         # then, do the same
+
+# Descriptive statistics:
+dd$education <- as.numeric(as.vector(dd$education.y))
+# Proportions:
+var='sex'
+table(dd$group,dd[,var])
+chisq.test(table(dd$group,dd[,var]))
+
+# Age/Education
+var='age'
+t.test(dd[dd$group=='PP', var],dd[dd$group=='NP', var])
+sd(dd[dd$group=='PP', var], na.rm=T)
+sd(dd[dd$group=='NP', var], na.rm=T)
 
         
 # Designer drugs:
