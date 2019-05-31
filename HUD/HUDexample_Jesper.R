@@ -83,6 +83,11 @@ dots <- data.frame(subject = rep(HUDMAIN_df$subject,4), group = rep(HUDMAIN_df$g
                    SPEED = as.ordered(rep(c(rep('fast', dim(HUDMAIN_df)[1]),rep('slow', dim(HUDMAIN_df)[1])),2))
 )
 
+t.test(dots$RT[dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='PP'],
+       dots$RT[dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='NP'])
+
+
+
 # Acc:
 dots <- data.frame(subject = rep(HUDMAIN_df$subject,4), group = rep(HUDMAIN_df$group.y,4),
                    Acc=c(HUDMAIN_df$AccSTfast,HUDMAIN_df$AccSTslow, HUDMAIN_df$AccDYNfast,HUDMAIN_df$AccDYNslow),
@@ -90,7 +95,8 @@ dots <- data.frame(subject = rep(HUDMAIN_df$subject,4), group = rep(HUDMAIN_df$g
                    SPEED = as.ordered(rep(c(rep('fast', dim(HUDMAIN_df)[1]),rep('slow', dim(HUDMAIN_df)[1])),2))
 )
 
-
+wilcox.test(dots$Acc[dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='PP'],
+       dots$Acc[dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='NP'])
         
  # Regular GLM:
 summary(glm(RT~BGD*SPEED*group, data=dots))
@@ -118,7 +124,8 @@ ggplot(dotsDYN, aes(x=SPEED, y=RT, fill=factor(group))) +
 
 # RT:
 boxplot(dots[(dots$BGD=='dynamic' & dots$SPEED=='slow' & dots$group=='NP'),'RT'],dots[(dots$BGD=='dynamic' & dots$SPEED=='slow' & dots$group=='PP'),'RT'],
-        dots[(dots$BGD=='dynamic' & dots$SPEED=='fast' & dots$group=='NP'),'RT'],dots[(dots$BGD=='dynamic' & dots$SPEED=='fast' & dots$group=='PP'),'RT'], ylim=c(0,3))
+        dots[(dots$BGD=='dynamic' & dots$SPEED=='fast' & dots$group=='NP'),'RT'],dots[(dots$BGD=='dynamic' & dots$SPEED=='fast' & dots$group=='PP'),'RT'],
+        ylim=c(0,3),range=100)
 points(jitter(cbind(1, dots[(dots$BGD=='dynamic' & dots$SPEED=='slow' & dots$group=='NP'),'RT']),5), col='#F8766D', pch=16, cex=1)
 points(cbind(1, mean(dots[(dots$BGD=='dynamic' & dots$SPEED=='slow' & dots$group=='NP'),'RT'])),col='#F8766D', pch=16, cex=3)
 points(jitter(cbind(2, dots[(dots$BGD=='dynamic' & dots$SPEED=='slow' & dots$group=='PP'),'RT']),5), col='#00BFC4', pch=16, cex=1)
@@ -130,7 +137,8 @@ points(cbind(4, mean(dots[(dots$BGD=='dynamic' & dots$SPEED=='fast' & dots$group
 
 
 boxplot(dots[(dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='NP'),'RT'],dots[(dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='PP'),'RT'],
-        dots[(dots$BGD=='static' & dots$SPEED=='fast' & dots$group=='NP'),'RT'],dots[(dots$BGD=='static' & dots$SPEED=='fast' & dots$group=='PP'),'RT'], ylim=c(0,3))
+        dots[(dots$BGD=='static' & dots$SPEED=='fast' & dots$group=='NP'),'RT'],dots[(dots$BGD=='static' & dots$SPEED=='fast' & dots$group=='PP'),'RT'],
+        ylim=c(0,3),range=100)
 points(jitter(cbind(1, dots[(dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='NP'),'RT']),5), col='#F8766D', pch=16, cex=1)
 points(cbind(1, mean(dots[(dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='NP'),'RT'])),col='#F8766D', pch=16, cex=3)
 points(jitter(cbind(2, dots[(dots$BGD=='static' & dots$SPEED=='slow' & dots$group=='PP'),'RT']),5), col='#00BFC4', pch=16, cex=1)
