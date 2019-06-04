@@ -167,6 +167,19 @@ load('/Users/alebedev/Documents/Projects/HUD/HUD.rda')
 tmp <- merge(SCREEN_df, SCRFU_df[,c('email', 'O')], by='email', all=T)
 summary((glm(DP~group*O, data=tmp)))
 
+# SEPI (drug vs endo):
+sscreen_df <- SCREEN_df
+sepi <- cbind(apply(sscreen_df[,c('SEPI_iden','SEPI_demarc','SEPI_consist','SEPI_act','SEPI_vit','SEPI_body','SEPI_thought', 'SEPI_overcomp')],2,mean),
+              apply(sscreen_df[,c('SEPI_iden_drug','SEPI_demarc_drug','SEPI_consist_drug','SEPI_act_drug','SEPI_vit_drug','SEPI_body_drug','SEPI_thought_drug', 'SEPI_overcomp_drug')],2,mean))
+
+sepi <- data.frame(labels = c('Identity','Demarcation','Consistency','Activity',
+                              'Vitality', 'Body', 'Thinking Process', 'Grandeur'),
+                   ENDO=round(as.numeric(sepi[1:dim(sepi)[1],1]),2),
+                   DRUG=round(as.numeric(sepi[1:dim(sepi)[1],2]),2))
+chartJSRadar(scores=sepi, labelSize=20, height=700,scaleStartValue=0.2,
+             main = paste('Ich-Störungen (EPI): Endogenous vs Drug-Induced (', 'n = ', dim(sscreen_df)[1],')',sep=''),
+             colMatrix = cbind(c(54,145,109),c(202,66,16)),lineAlpha=5,polyAlpha=0.3)
+
 
 
 
