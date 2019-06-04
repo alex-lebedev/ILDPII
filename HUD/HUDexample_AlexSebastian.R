@@ -51,7 +51,7 @@ beta(fitCONS_public) # (the pattern is generally the same across all questions)
 # Two-sample t-test:
 t.test(CONSP_df$CONS5[CONSP_df$group=='NP'],CONSP_df$CONS5[CONSP_df$group=='PP'], 'less')
 # Plot:
-boxplot(CONSP_df$CONS5[CONSP_df$group=='NP'],CONSP_df$CONS5[CONSP_df$group=='PP'])
+boxplot(CONSP_df$CONS5[CONSP_df$group=='NP'],CONSP_df$CONS5[CONSP_df$group=='PP'], col=c('#00BFC4','#F8766D'))
 points(cbind(jitter(rep(1, table(CONSP_df$group=='NP')[2])), CONSP_df$CONS5[CONSP_df$group=='NP']), pch=16)
 points(cbind(jitter(rep(2, table(CONSP_df$group=='PP')[2])), CONSP_df$CONS5[CONSP_df$group=='PP']), pch=16)
 
