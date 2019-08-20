@@ -2,7 +2,7 @@
 
 library(xlsx)
 
-screen_raw <- read.xlsx2('/Users/alebedev/Downloads/Export.xlsx',2)
+screen_raw <- read.xlsx2('/Users/alebedev/Downloads/Export.xlsx',2, stringsAsFactors=F)
 
 screen_raw[screen_raw==999] <- NA
 screen_df <- data.frame(ID = screen_raw$ID, consentYes1 = screen_raw$VAR000, username = screen_raw$VAR001,email=screen_raw$VAR213,  
@@ -118,7 +118,7 @@ for (i in 1:length(screen_raw$ID)){
   screen_df$raads_any[i] <- sum(raads[c(1:5,7:15)]!=0)-sum(raads[6]!=0)
   }
 
-screen_df <- screen_df[-141,] # + mb username: NCA4618
+#screen_df <- screen_df[-141,] # + mb username: NCA4618
 
 screen_df$SEPI_tot <- apply(screen_df[,c('SEPI_iden', 'SEPI_demarc', 'SEPI_consist',
                       'SEPI_act', 'SEPI_vit', 'SEPI_overcomp', 'SEPI_body', 'SEPI_thought')],1,sum)
@@ -128,6 +128,32 @@ screen_df$OLIFE_tot <- screen_df$OLIFE_UE+screen_df$OLIFE_CD+screen_df$OLIFE_IA+
 
 screen_df$DP <- apply(scale(screen_df[,c('PDI_total', 'OLIFE_tot')]),1,mean)
 #screen_df$DP <- apply(log1p(scale(screen_df[,c('PDI_total', 'OLIFE_tot')])+2),1,mean)
+#screen_df$DP <- apply(cbind(scale(log1p(screen_df$PDI_total)),scale(screen_df$OLIFE_tot)),1,mean)
+
+screen_df$email <- tolower(screen_df$email)
+screen_df$email <- gsub(",",".",screen_df$email)
+screen_df$email <- gsub(";",".",screen_df$email)
+screen_df$email <- gsub(" ","",screen_df$email)
+screen_df <- screen_df[!duplicated(screen_df$email),]
+
+
+screen_df$sex <- gsub(" ","",tolower(screen_df$sex))
+screen_df$nonbingen <- 'no'
+screen_df$nonbingen[is.element(screen_df$sex, c('kvinna(intergender)','icke-binär(föddikvinnligtkodadkropp)','nb','man(biologiskt,menkanskeodefinieratmentalt)',
+                                          'sermigsomickebinärmenärföddkvinna,harintegjortnågrakönskorrigerandeoperationerutantarbaratestosteronenl.läkareordinationer'))] <- 'yes'
+
+screen_df$sex[is.element(screen_df$sex, c('femail',  "",'kvinna(intergender)', 'kvinnor',
+            'female', 'f', 'woman', 'kvinns', 'kvinba', 'icke-binär(föddikvinnligtkodadkropp)',
+            'sermigsomickebinärmenärföddkvinna,harintegjortnågrakönskorrigerandeoperationerutantarbaratestosteronenl.läkareordinationer'))] <- 'kvinna'
+screen_df$sex[is.element(screen_df$sex, c('male', 'man.', 'm','mam', 'kille','man(biologiskt,menkanskeodefinieratmentalt)'))] <- 'man'
+screen_df$sex[!is.element(screen_df$sex, c('kvinna', 'man'))] <- NA
+
+screen_df$age <- tolower(screen_df$age)
+screen_df$age <- gsub(",",".",screen_df$age)
+screen_df$age <- gsub(";",".",screen_df$age)
+screen_df$age <- gsub(" ","",screen_df$age)
+screen_df$age[is.element(screen_df$age,c('24.','19år', '26(1992)', 'nilas.alakoski@gmail.com', '24å4', '18år'))] <- c(24,19,26, NA, 24, 18)
+screen_df$age <- as.numeric(screen_df$age)
 
 screen_df$DP <- screen_df$DP-min(screen_df$DP)
 # Select subset of those without psychiatric disorders:
@@ -139,16 +165,64 @@ screen_df_sel <- screen_df[which((screen_df$diagADHD==2 | is.na(screen_df$diagAD
                                    (screen_df$diagOCD==2 | is.na(screen_df$diagOCD)) &
                                    (screen_df$diagOther==2 | is.na(screen_df$diagOther))),]
 
+screen_df_selSCH <- screen_df[which((screen_df$diagADHD==1)  |
+                                    (screen_df$diagASD==1) |
+                                    (screen_df$diagBP==1) |
+                                    (screen_df$diagScz==1)),]
+
+
+
 # screen_df_sel <- screen_df_sel[as.numeric(screen_df_sel$diagOtherWhich)==1,]
 t.test(screen_df$DP[screen_df$drug_psychedelics==0],screen_df$DP[screen_df$drug_psychedelics==1])
+boxplot(screen_df$DP[screen_df$drug_psychedelics==0],screen_df$DP[screen_df$drug_psychedelics==1])
+points(cbind(jitter(rep(1, table(screen_df$drug_psychedelics==0)[2])), screen_df$DP[screen_df$drug_psychedelics==0]), pch=16)
+points(cbind(jitter(rep(2, table(screen_df$drug_psychedelics==1)[2])), screen_df$DP[screen_df$drug_psychedelics==1]), pch=16)
+
+
+
 t.test(screen_df_sel$DP[screen_df_sel$drug_psychedelics==0],screen_df_sel$DP[screen_df_sel$drug_psychedelics==1])
 
-finalGLM <- glm(DP ~ drug_psychedelics+drug_opi+drug_alc+drug_cannabis+drug_tobacco+drug_stim, data=screen_df)
+finalGLM <- glm(DP ~ drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim+sex+age, data=screen_df)
 summary(finalGLM)
 
-finalGLM <- glm(DP ~ drug_psychedelics+drug_opi+drug_alc+drug_cannabis+drug_tobacco+drug_stim, data=screen_df_sel)
+finalGLM <- glm(DP ~ drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim+sex+age, data=screen_df_sel)
 summary(finalGLM)
 
+
+
+save('screen_df', 'screen_df_sel', file='/Users/alebedev/Documents/Projects/HUD/screen_df.rda')
+
+
+
+
+
+
+
+
+
+
+
+### Prepare data for follow-up survey:
+
+responders <- data.frame('FN' = screen_df$drug_psychedelics, 'Last name' = screen_df$mothertongue, 'E-mail' = screen_df$email)
+responders$First.name[responders$FN==0] <- 'NP'
+responders$First.name[responders$FN==1] <- 'PP'
+
+responders <- responders[,c('First.name', 'Last.name', 'E.mail')]
+
+responders$Last.name <- gsub(",","/",responders$Last.name)
+
+
+
+write.csv(responders,file=paste('~/Downloads/', Sys.Date(), '_ALL_responders_1-',dim(responders)[1],'.csv', sep=''), quote = F, row.names = F)
+
+write.csv(responders[responders$First.name=='NP',],file=paste('~/Downloads/', Sys.Date(), '_NP_responders_1-',dim(responders)[1],'.csv', sep=''), quote = F, row.names = F)
+write.csv(responders[responders$First.name=='PP',],file=paste('~/Downloads/', Sys.Date(), '_PP_responders_1-',dim(responders)[1],'.csv', sep=''), quote = F, row.names = F)
+
+
+#screen_df$age <- as.numeric(as.vector(screen_df$age))
+
+save(screen_df, file='/Users/alebedev/GitHub/ILDPII/HUD/screening/HUD_sreen1.rda')
 screen_df <- screen_df[-which(screen_df$DP==max(screen_df$DP)),]
 
 #finalGLM <- glm(screen_df$DP ~ screen_df$drug_psychedelics+screen_df$drug_cannabis+screen_df$drug_mdma+screen_df$drug_opi+screen_df$drug_alc+screen_df$drug_tobacco+screen_df$drug_stim)
@@ -157,3 +231,5 @@ screen_df <- screen_df[-which(screen_df$DP==max(screen_df$DP)),]
 mylogit <- glm(screen_df$drug_psychedelics ~ screen_df$DP, family = "binomial")
 exp(cbind(OR = coef(mylogit), confint(mylogit)))
 summary(mylogit)
+
+
