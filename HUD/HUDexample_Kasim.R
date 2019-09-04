@@ -6,12 +6,19 @@ library(reghelper)
 library(ggplot2)
 library(ggstance)
 library(radarchart)
+library(xlsx)
 
 # Load data:
 load('/Users/alebedev/Documents/Projects/HUD/HUD_anonymized.rda')
+# To address sampling bias:
+scr_cleaned <- read.xlsx2('~/Downloads/HUD_anonymized_cleaned.xlsx',1)[,c('ScreenID','surveyfoundout')]
+colnames(scr_cleaned)[1] <- 'ID'
+SCREEN_df <- merge(SCREEN_df, scr_cleaned, by=c('ID'))
+
 # Selecting subsamples of those without any psychiatric diagnoses:
 SCREEN_df_noPsych <- subset(SCREEN_df, SCREEN_df$PsychDiagAny==0)
 CONSP_df_noPsych <- subset(CONSP_df, CONSP_df$PsychDiagAny==0)
+
 
 #########################
 ### Group comparisons ###
