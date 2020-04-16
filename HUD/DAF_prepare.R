@@ -135,7 +135,7 @@ fdata_df <- data.frame(study.ID=fdata_raw$VAR00)
 
 for (i in 1:length(fdata_df$study.ID)){
   # Select ith row:
-  tmp <- subset(fdata[i,])
+  tmp <- subset(fdata_raw[i,])
   fdata_df$CONS_public[i] = as.numeric(tmp$AF_1)
   fdata_df$CONS_polit[i]= as.numeric(tmp$AF_2)
   fdata_df$CONS_monit[i]= as.numeric(tmp$AF_3)
