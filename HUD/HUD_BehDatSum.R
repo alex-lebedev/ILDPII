@@ -1,7 +1,7 @@
 # HUD_BehDatSum.R
 # (Summarizing behavioural data)
 # HUD: experimenal data preparation:
-
+library(xlsx)
 # RALT (subjective ratings):
 raltList <- list.files('/Users/alebedev/Documents/Projects/HUD/performance/RALT/', '*.csv')
 
@@ -44,11 +44,14 @@ mysamplesPP <- mysamplesHUD
 rhosPP <- rhos
 alphaPP <- alpha
 evDeltaPP <- evDelta
+ev1PP <- apply(extract(mysamplesHUD)$EVinit1,2,mean);ev2PP <- apply(extract(mysamplesHUD)$EVinit2,2,mean);
 load('/Users/alebedev/Documents/Projects/HUD/pupillometry/mysamplesHUD_NP.rda')
 mysamplesNP <- mysamplesHUD
 rhosNP <- rhos
 alphaNP <- alpha
 evDeltaNP <- evDelta
+ev1NP <- apply(extract(mysamplesHUD)$EVinit1,2,mean);ev2NP <- apply(extract(mysamplesHUD)$EVinit2,2,mean);
+
 load('/Users/alebedev/Documents/Projects/HUD/pupillometry/HUD_RALT_pupillometry_df.rda')
 tmp <- subset(HUD_RALT_pupillometry_df, HUD_RALT_pupillometry_df$trial==1)
 raltLearn <- data.frame(subject=paste('sub-',tmp$subject, sep=''), version=tmp$order, group=tmp$group)
@@ -58,6 +61,11 @@ raltLearn$alpha[raltLearn$group=='NP'] <- alphaNP
 raltLearn$alpha[raltLearn$group=='PP'] <- alphaPP
 raltLearn$evDelta[raltLearn$group=='NP'] <- evDeltaNP
 raltLearn$evDelta[raltLearn$group=='PP'] <- evDeltaPP
+raltLearn$ev1[raltLearn$group=='NP'] <- ev1NP
+raltLearn$ev2[raltLearn$group=='NP'] <- ev2NP
+raltLearn$ev1[raltLearn$group=='PP'] <- ev1PP
+raltLearn$ev2[raltLearn$group=='PP'] <- ev2PP
+
 ralt <- merge(ralt, raltLearn, by=c('subject', 'version'))
 
 
@@ -136,8 +144,8 @@ load('/Users/alebedev/Documents/Projects/HUD/HUD.rda')
 esids$email <- gsub(" ","",tolower(esids$email))
 esids$email <- gsub(";","",tolower(esids$email))
 BEHSOURCE_df <- merge(SCRFU_df, esids, by='email')
-BEHSOURCE_df <- BEHSOURCE_df[!duplicated(BEHSOURCE_df$ID.y),]
-colnames(BEHSOURCE_df)[which(colnames(BEHSOURCE_df)=='ID.y')]<-'subject'
+BEHSOURCE_df <- BEHSOURCE_df[!duplicated(BEHSOURCE_df$ID),]
+colnames(BEHSOURCE_df)[which(colnames(BEHSOURCE_df)=='ID')]<-'subject'
 BEHSOURCE_df$ShockLevel <- as.numeric(as.vector(BEHSOURCE_df$ShockLevel))
 BEHSOURCE_df <- merge(BEHSOURCE_df, CONSP_df[,c('email','group','CONS_public', 'CONS_polit',
                               'CONS_monit', 'CONS_connect', 'CONS_org', 'CONS_glob', 'CONS_prog',

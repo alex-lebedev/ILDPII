@@ -7,6 +7,8 @@
 rm(list=ls())
 # Load libraries:
 library(xlsx)
+library(rstan)
+library(stringi)
 
 screen_raw <- read.xlsx2('/Users/alebedev/Downloads/Export.xlsx',2, stringsAsFactors=F)
 
@@ -130,16 +132,12 @@ screen_df$SEPI_tot <- apply(screen_df[,c('SEPI_iden', 'SEPI_demarc', 'SEPI_consi
 screen_df$SEPI_tot_drug <- apply(screen_df[,c('SEPI_iden_drug', 'SEPI_demarc_drug', 'SEPI_consist_drug',
                                          'SEPI_act_drug', 'SEPI_vit_drug', 'SEPI_overcomp_drug', 'SEPI_body_drug', 'SEPI_thought_drug')],1,sum)
 screen_df$OLIFE_tot <- screen_df$OLIFE_UE+screen_df$OLIFE_CD+screen_df$OLIFE_IA+screen_df$OLIFE_IN
-
-screen_df$DP <- apply(scale(screen_df[,c('PDI_total', 'OLIFE_tot')]),1,mean)
-#screen_df$DP <- apply(log1p(scale(screen_df[,c('PDI_total', 'OLIFE_tot')])+2),1,mean)
-#screen_df$DP <- apply(cbind(scale(log1p(screen_df$PDI_total)),scale(screen_df$OLIFE_tot)),1,mean)
-
 screen_df$email <- tolower(screen_df$email)
 screen_df$email <- gsub(",",".",screen_df$email)
 screen_df$email <- gsub(";",".",screen_df$email)
 screen_df$email <- gsub(" ","",screen_df$email)
-screen_df <- screen_df[!duplicated(screen_df$email),]
+screen_df$email[stri_detect_fixed(as.vector(screen_df$email), 'blank')] <- paste0('blankHUD',sample(1:length(screen_df$email[stri_detect_fixed(as.vector(screen_df$email), 'blank')])))
+screen_df <- screen_df[!duplicated(screen_df$email,fromLast = T),]
 
 
 screen_df$sex <- gsub(" ","",tolower(screen_df$sex))
@@ -157,10 +155,9 @@ screen_df$age <- tolower(screen_df$age)
 screen_df$age <- gsub(",",".",screen_df$age)
 screen_df$age <- gsub(";",".",screen_df$age)
 screen_df$age <- gsub(" ","",screen_df$age)
-screen_df$age[is.element(screen_df$age,c('24.','19år', '26(1992)', 'nilas.alakoski@gmail.com', '24å4', '18år'))] <- c(24,19,26, NA, 24, 18)
+screen_df$age[is.element(screen_df$age,c('24.','19år', '26(1992)', 'nilas.alakoski@gmail.com', '24å4', '18år'))] <- c(19,26,NA,24,24, 18,18)
 screen_df$age <- as.numeric(screen_df$age)
 
-screen_df$DP <- screen_df$DP-min(screen_df$DP)
 # Select subset of those without psychiatric disorders:
 screen_df_sel <- screen_df[which((screen_df$diagADHD==2 | is.na(screen_df$diagADHD))  &
                                    (screen_df$diagASD==2 | is.na(screen_df$diagASD)) &
@@ -176,26 +173,6 @@ screen_df_selSCH <- screen_df[which((screen_df$diagADHD==1)  |
                                     (screen_df$diagScz==1)),]
 
 
-
-# screen_df_sel <- screen_df_sel[as.numeric(screen_df_sel$diagOtherWhich)==1,]
-t.test(screen_df$DP[screen_df$drug_psychedelics==0],screen_df$DP[screen_df$drug_psychedelics==1])
-boxplot(screen_df$DP[screen_df$drug_psychedelics==0],screen_df$DP[screen_df$drug_psychedelics==1])
-points(cbind(jitter(rep(1, table(screen_df$drug_psychedelics==0)[2])), screen_df$DP[screen_df$drug_psychedelics==0]), pch=16)
-points(cbind(jitter(rep(2, table(screen_df$drug_psychedelics==1)[2])), screen_df$DP[screen_df$drug_psychedelics==1]), pch=16)
-
-
-
-t.test(screen_df_sel$DP[screen_df_sel$drug_psychedelics==0],screen_df_sel$DP[screen_df_sel$drug_psychedelics==1])
-
-finalGLM <- glm(DP ~ drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim+sex+age, data=screen_df)
-summary(finalGLM)
-
-finalGLM <- glm(DP ~ drug_psychedelics+drug_opi+drug_mdma+drug_alc+drug_cannabis+drug_tobacco+drug_stim+sex+age, data=screen_df_sel)
-summary(finalGLM)
-
-
-
-save('screen_df', 'screen_df_sel', file='/Users/alebedev/Documents/Projects/HUD/screen_df.rda')
 
 
 
@@ -384,7 +361,23 @@ fdata_df$email <- tolower(fdata_df$email)
 fdata_df$email[fdata_df$email=="supermegaduperkurt@icloud.com"] <- "supermegaduperkurt@gmail.com"
 
 # Preprocess text:
-df <- merge(fdata_df, screen_df, by = 'email')
+SCREEN_df <- screen_df
+
+# Apply transforms:
+SCREEN_df$PDI_totalLog <- log1p(SCREEN_df$PDI_total)
+SCREEN_df$PDI_distLog <- log1p(SCREEN_df$PDI_dist)
+SCREEN_df$PDI_convLog <- log1p(SCREEN_df$PDI_conv)
+SCREEN_df$PDI_timeLog <- log1p(SCREEN_df$PDI_time)
+SCREEN_df$OLIFE_totLog <- log1p(SCREEN_df$OLIFE_tot)
+SCREEN_df$OLIFE_UELog <- log1p(SCREEN_df$OLIFE_UE)
+SCREEN_df$OLIFE_CDLog <- log1p(SCREEN_df$OLIFE_CD)
+SCREEN_df$OLIFE_IALog <- log1p(SCREEN_df$OLIFE_IA)
+SCREEN_df$OLIFE_INLog <- log1p(SCREEN_df$OLIFE_IN)
+SCREEN_df$raads_anyLog <- log1p(SCREEN_df$raads_any)
+SCREEN_df$ASRSLog <- log1p(SCREEN_df$ASRS)
+SCREEN_df$DP <- apply(scale(SCREEN_df[,c('PDI_totalLog', 'OLIFE_totLog')]),1,mean)
+
+df <- merge(fdata_df, SCREEN_df, by = 'email')
 ages <- df$age
 df$age <- as.numeric(as.vector(df$age))
 ages[which(is.na(df$age))]
@@ -423,7 +416,8 @@ df$diagOther[is.element(df$diagOtherWhich, c('utmattningssyndrom,underutrednings
 df_all <- merge(es_df, esids[,c('ID','email', 'ShockLevel')],by='ID')
 df_all$ShockLevel <- as.numeric(df_all$ShockLevel)
 df_all <- merge(df_all, df, by='email')
-df_all <- df_all[!duplicated(df_all$email),]
+df_all$email[stri_detect_fixed(as.vector(df_all$email), 'blank')] <- paste0('blankT',sample(1:length(df_all$email[stri_detect_fixed(as.vector(df_all$email), 'blank')])))
+df_all <- df_all[!duplicated(df_all$email,fromLast = T),]
 
 df_allf <- merge(df_all, fdata_df_PP[,c('email','psyExEmo', 'psySocial','psyCritTh', 'psyCog', 'psyAnxDep','psySelf',
                                         'psyPerc', 'psySom', 'psyAddict', 'psySpi', 'psyPolit','psyVisual', 'psyAuditory')], replace=T)
@@ -450,43 +444,12 @@ fdata2_df$CONSALL <- apply(fdata2_df[,c('CONS_public', 'CONS_polit', 'CONS_monit
 
 
 
-SCREEN_df <- screen_df
-# Apply transforms:
-SCREEN_df$PDI_totalLog <- log1p(SCREEN_df$PDI_total)
-SCREEN_df$PDI_distLog <- log1p(SCREEN_df$PDI_dist)
-SCREEN_df$PDI_convLog <- log1p(SCREEN_df$PDI_conv)
-SCREEN_df$PDI_timeLog <- log1p(SCREEN_df$PDI_time)
-SCREEN_df$OLIFE_totLog <- log1p(SCREEN_df$OLIFE_tot)
-SCREEN_df$OLIFE_UELog <- log1p(SCREEN_df$OLIFE_UE)
-SCREEN_df$OLIFE_CDLog <- log1p(SCREEN_df$OLIFE_CD)
-SCREEN_df$OLIFE_IALog <- log1p(SCREEN_df$OLIFE_IA)
-SCREEN_df$OLIFE_INLog <- log1p(SCREEN_df$OLIFE_IN)
-SCREEN_df$raads_anyLog <- log1p(SCREEN_df$raads_any)
-SCREEN_df$ASRSLog <- log1p(SCREEN_df$ASRS)
-
-SCREEN_df$DP <- apply(scale(SCREEN_df[,c('PDI_totalLog', 'OLIFE_totLog')]),1,mean)
 
 
 SCRFU_df <- df
 CONSP_df <- fdata2_df
-CONSP_df$ALC_prox[CONSP_df$ALC_prox==1] <- 9
-#CONSP_df$ALC_prox <- max(CONSP_df$ALC_prox)-(CONSP_df$ALC_prox)
-CONSP_df$TOB_prox[CONSP_df$TOB_prox==1] <- 9
-#CONSP_df$TOB_prox <- max(CONSP_df$TOB_prox)-(CONSP_df$TOB_prox)
-CONSP_df$CAN_prox[CONSP_df$CAN_prox==1] <- 9
-#CONSP_df$CAN_prox <- max(CONSP_df$CAN_prox)-(CONSP_df$CAN_prox)
-CONSP_df$MDMA_prox[CONSP_df$MDMA_prox==1] <- 9
-#CONSP_df$MDMA_prox <- max(CONSP_df$MDMA_prox)-(CONSP_df$MDMA_prox)
-CONSP_df$STIM_prox[CONSP_df$STIM_prox==1] <- 9
-#CONSP_df$STIM_prox <- max(CONSP_df$STIM_prox)-(CONSP_df$STIM_prox)
-CONSP_df$OPI_prox[CONSP_df$OPI_prox==1] <- 9
-#CONSP_df$OPI_prox <- max(CONSP_df$OPI_prox)-(CONSP_df$OPI_prox)
-CONSP_df$PSY_prox[CONSP_df$PSY_prox==1] <- 9
-#CONSP_df$PSY_prox <- max(CONSP_df$PSY_prox)-(CONSP_df$PSY_prox)
-
 
 SCREEN_df$email[SCREEN_df$email=='supermegaduperkurt@icloud.com'] <- 'supermegaduperkurt@gmail.com'
-
 
 SCREEN_df$diagMDep[is.na(SCREEN_df$diagMDep)]<-2
 SCREEN_df$diagBP[is.na(SCREEN_df$diagBP)]<-2
@@ -498,7 +461,8 @@ SCREEN_df$diagOther[is.na(SCREEN_df$diagOther)]<-2
 SCREEN_df$brainInjuryY1[is.na(SCREEN_df$brainInjuryY1)]<-2
 
 CONSP_df$email <- gsub(" ","",tolower(CONSP_df$email))
-CONSP_df <- CONSP_df[!duplicated(CONSP_df$email),]
+CONSP_df$email[stri_detect_fixed(as.vector(CONSP_df$email), 'blank')] <- paste0('blankCONSP1',sample(1:length(CONSP_df$email[stri_detect_fixed(as.vector(CONSP_df$email), 'blank')])))
+CONSP_df <- CONSP_df[!duplicated(CONSP_df$email,fromLast = T),]
 tmp1 <- merge(CONSP_df, SCREEN_df[,c('email','sex', 'age', 'diagMDep', 'diagBP', 'diagScz', 'diagADHD', 'diagASD','diagOCD',
                                      'diagOther', 'brainInjuryY1', 'DP', 'OLIFE_totLog', 'PDI_totalLog', 'SEPI_tot','SEPI_tot_drug', 'ASRSLog','raads_anyLog')], by.x ='email', all=F)
 
@@ -508,13 +472,19 @@ tmp2[,c('sex', 'age', 'diagMDep', 'diagBP', 'diagScz', 'diagADHD', 'diagASD','di
         'diagOther', 'brainInjuryY1', 'DP', 'OLIFE_totLog', 'PDI_totalLog','SEPI_tot','SEPI_tot_drug', 'ASRSLog','raads_anyLog')] <- NA
 
 CONSP_df <- rbind(tmp1, tmp2)
-CONSP_df <- CONSP_df[!duplicated(CONSP_df$email),]
+CONSP_df$email[stri_detect_fixed(as.vector(CONSP_df$email), 'blank')] <- paste0('blankCONSP2',sample(1:length(CONSP_df$email[stri_detect_fixed(as.vector(CONSP_df$email), 'blank')])))
+CONSP_df <- CONSP_df[!duplicated(CONSP_df$email,fromLast = T),]
 CONSP_df$sex <- as.factor(CONSP_df$sex)
 
-
+CONSP_df$ALC_prox[CONSP_df$ALC_prox==1] <- 9
+CONSP_df$TOB_prox[CONSP_df$TOB_prox==1] <- 9
+CONSP_df$CAN_prox[CONSP_df$CAN_prox==1] <- 9
+CONSP_df$MDMA_prox[CONSP_df$MDMA_prox==1] <- 9
+CONSP_df$STIM_prox[CONSP_df$STIM_prox==1] <- 9
+CONSP_df$OPI_prox[CONSP_df$OPI_prox==1] <- 9
+CONSP_df$PSY_prox[CONSP_df$PSY_prox==1] <- 9
 CONSP_df[,c('ALC_prox', 'TOB_prox', 'CAN_prox','MDMA_prox','STIM_prox', 'OPI_prox', 'PSY_prox')] <- 
   10-CONSP_df[,c('ALC_prox', 'TOB_prox', 'CAN_prox','MDMA_prox','STIM_prox', 'OPI_prox', 'PSY_prox')]
-
 CONSP_df$ALC_freqprox <- apply(scale(CONSP_df[,c('ALC_freq', 'ALC_prox')]),1,mean)
 CONSP_df$TOB_freqprox <- apply(scale(CONSP_df[,c('TOB_freq', 'TOB_prox')]),1,mean)
 CONSP_df$CAN_freqprox <- apply(scale(CONSP_df[,c('CAN_freq', 'CAN_prox')]),1,mean)
@@ -593,7 +563,6 @@ raltLearn$alpha[raltLearn$group=='PP'] <- alphaPP
 raltLearn$evDelta[raltLearn$group=='NP'] <- evDeltaNP
 raltLearn$evDelta[raltLearn$group=='PP'] <- evDeltaPP
 ralt <- merge(ralt, raltLearn, by=c('subject', 'version'))
-
 
 # DOTS:
 dotsList <- list.files('/Users/alebedev/Documents/Projects/HUD/performance/DOTS/', '*.csv')
@@ -681,34 +650,38 @@ BEHSOURCE_df <- merge(BEHSOURCE_df, CONSP_df[,c('email','group','CONS_public', '
                                                 'ALC_freqprox', 'TOB_freqprox', 'MDMA_freqprox', 'CAN_freqprox',
                                                 'STIM_freqprox', 'OPI_freqprox','PSY_freqprox', 'CONS5', 'CONSALL')], by=c('email', 'group'))
 
-
-
 HUDMAIN_df <- merge(EXPDAT_df, BEHSOURCE_df, by=c('subject'), all=T)
-
 HUDMAIN_df$RTdiffBGD <- HUDMAIN_df$rtDYN-HUDMAIN_df$rtST
 HUDMAIN_df$RTdiffST <- HUDMAIN_df$rtSTslow-HUDMAIN_df$rtSTfast
 HUDMAIN_df$RTdiffDYN <- HUDMAIN_df$rtDYNslow-HUDMAIN_df$rtDYNfast
-
 SCREEN_df$group <- NA
 SCREEN_df$group[SCREEN_df$drug_psychedelics==0] <- 'NP'
 SCREEN_df$group[SCREEN_df$drug_psychedelics==1] <- 'PP'
 
-SCRFU_df <- merge(SCRFU_df, CONSP_df[,c("email","ALC_freqprox","TOB_freqprox",
-                                   "CAN_freqprox","MDMA_freqprox","STIM_freqprox","OPI_freqprox",'PSY_prox',
-                                   'PSY_freqprox', 'raads_anyLog',  'ASRSLog','PDI_totalLog', 'OLIFE_totLog')], by='email', all=T)
-SCRFU_df <- SCRFU_df[!duplicated(SCRFU_df$email),]
+SCRFU_df <- merge(SCRFU_df, CONSP_df[,c('email',
+            'ALC_freqprox','TOB_freqprox', 'CAN_freqprox','MDMA_freqprox','STIM_freqprox','OPI_freqprox','PSY_freqprox',
+            'ALC_freq','TOB_freq', 'CAN_freq','MDMA_freq','STIM_freq','OPI_freq','PSY_freq',
+            'ALC_prox','TOB_prox', 'CAN_prox','MDMA_prox','STIM_prox','OPI_prox','PSY_prox')],
+            by='email', all=T)
+SCRFU_df <- SCRFU_df[!duplicated(SCRFU_df$email, fromLast=T),]
 
 
-SCREEN_df <- SCREEN_df[,-which(colnames(SCREEN_df)=='email')]
-SCRFU_df <- SCRFU_df[,-which(colnames(SCRFU_df)=='email')]
-CONSP_df <- CONSP_df[,-which(colnames(CONSP_df)=='email')]
-HUDMAIN_df <- HUDMAIN_df[,-which(colnames(HUDMAIN_df)=='email')]
 
 SCREEN_df$raads_anyLog[which(SCREEN_df$raads_anyLog==-Inf)] <- 0
 SCRFU_df$raads_anyLog[which(SCRFU_df$raads_anyLog==-Inf)] <- 0
 CONSP_df$raads_anyLog[which(CONSP_df$raads_anyLog==-Inf)] <- 0
+HUDMAIN_df$raads_anyLog[which(HUDMAIN_df$raads_anyLog==-Inf)] <- 0
 
+
+# Clean education:
+SCREEN_df$education<-tolower(SCREEN_df$education)
+SCREEN_df$education <- gsub(" ","",SCREEN_df$education)
+SCREEN_df$education <- gsub(";","",SCREEN_df$education)
+SCREEN_df$education <- gsub(",",".",SCREEN_df$education)
+SCREEN_df$education <- gsub("ingen","0",SCREEN_df$education)
+SCREEN_df$education <- gsub("-","0",SCREEN_df$education)
+SCREEN_df$education <- as.numeric(SCREEN_df$education)
 
 # Final data:
-save(SCREEN_df, SCRFU_df, HUDMAIN_df, CONSP_df, file='/Users/alebedev/Documents/Projects/HUD/HUD_anonymized.rda')
+save(SCREEN_df, SCRFU_df, HUDMAIN_df, CONSP_df, file='/Users/alebedev/Documents/Projects/HUD/HUD_final_old2020.rda')
 

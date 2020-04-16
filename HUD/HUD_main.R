@@ -4,6 +4,9 @@ library(ggplot2)
 library(ggstance)
 
 load('/Users/alebedev/Documents/Projects/HUD/HUD_anonymized.rda')
+SCREEN_df <- SCREEN_df[!duplicated(SCREEN_df$ID),]
+SCRFU_df <- SCRFU_df[!duplicated(SCRFU_df$ID),]
+HUDMAIN_df <- HUDMAIN_df[!duplicated(HUDMAIN_df$ID),]
 
 
 HUDMAIN_df$AccSTdiff<-HUDMAIN_df$AccSTfast-HUDMAIN_df$AccSTslow
@@ -210,23 +213,24 @@ chartJSRadar(scores=dfp, labelSize=20, height=700,scaleStartValue=0.1,
              colMatrix = cbind(c(54,145,109),c(202,66,16)),lineAlpha=5,polyAlpha=0.3)
 
 v='SEPI_demarc'
-t.test(SCREEN_DF[SCREEN_DF$group=='NP',v],SCREEN_DF[SCREEN_DF$group=='PP',v])
+t.test(SCREEN_DF[SCREEN_df$group=='NP',v],SCREEN_DF[SCREEN_DF$group=='PP',v])
 
 # SEPI (drug):
-dfp <- t(aggregate(SCREEN_DF[,c('SEPI_iden_drug','SEPI_demarc_drug','SEPI_consist_drug','SEPI_act_drug','SEPI_vit_drug','SEPI_body_drug','SEPI_thought_drug', 'SEPI_overcomp_drug')],by=list(SCREEN_DF$group), FUN=mean))
+dfp <- t(aggregate(SCREEN_df[,c('SEPI_iden_drug','SEPI_demarc_drug','SEPI_consist_drug','SEPI_act_drug','SEPI_vit_drug','SEPI_body_drug','SEPI_thought_drug', 'SEPI_overcomp_drug')],by=list(SCREEN_df$group), FUN=mean))
 dfp <- data.frame(labels = c('Identity','Demarcation','Consistency','Activity',
                              'Vitality', 'Body', 'Thinking Process', 'Grandeur'),
                   NonUsers=round(as.numeric(dfp[2:dim(dfp)[1],1]),2),
                   Users=round(as.numeric(dfp[2:dim(dfp)[1],2]),2))
 chartJSRadar(scores=dfp, labelSize=20, height=700,
-             main = paste('Ich-Störungen (EPI) and Psychedelic Drug Use (', 'n1 = ', table(SCREEN_DF$group)['NP'],', n2 = ',
-                          table(SCREEN_DF$group)['PP'],')',sep=''),
+             main = paste('Ich-Störungen (EPI) and Psychedelic Drug Use (', 'n1 = ', table(SCREEN_df$group)['NP'],', n2 = ',
+                          table(SCREEN_df$group)['PP'],')',sep=''),
              colMatrix = cbind(c(54,145,109),c(202,66,16)),lineAlpha=5,polyAlpha=0.3)
 
 
 # SEPI: ENDO vs DRUG
-#sSCREEN_DF <- SCREEN_DF[SCREEN_DF$drug_psychedelics==1,]
-sSCREEN_DF <- SCREEN_DF
+#sSCREEN_DF <- SCREEN_df[SCREEN_df$drug_psychedelics==1,]
+#sSCREEN_DF <- SCREEN_DF
+sSCREEN_DF <- SCREEN_df[SCREEN_df$SEPI_tot>1&SCREEN_df$SEPI_tot_drug>1,]
 sepi <- cbind(apply(sSCREEN_DF[,c('SEPI_iden','SEPI_demarc','SEPI_consist','SEPI_act','SEPI_vit','SEPI_body','SEPI_thought', 'SEPI_overcomp')],2,mean),
               apply(sSCREEN_DF[,c('SEPI_iden_drug','SEPI_demarc_drug','SEPI_consist_drug','SEPI_act_drug','SEPI_vit_drug','SEPI_body_drug','SEPI_thought_drug', 'SEPI_overcomp_drug')],2,mean))
 

@@ -1,5 +1,6 @@
 # HUD: follow-up questionnaire:
-
+library(stringi)
+library(xlsx)
 # Study ID-key:
 esids <- read.xlsx2('/Users/alebedev/Documents/Projects/HUD/visits/tested.xlsx', 1, stringsAsFactors=F)
 esids$email <- gsub(" ","",tolower(esids$email))
@@ -209,7 +210,7 @@ df$diagOther[is.element(df$diagOtherWhich, c('utmattningssyndrom,underutrednings
 df_all <- merge(es_df, esids[,c('ID','email', 'ShockLevel')],by='ID')
 df_all$ShockLevel <- as.numeric(df_all$ShockLevel)
 df_all <- merge(df_all, df, by='email')
-df_all <- df_all[!duplicated(df_all$email),]
+df_all <- df_all[!duplicated(df_all$email,fromLast = T),]
 
 df_allf <- merge(df_all, fdata_df_PP[,c('email','psyExEmo', 'psySocial','psyCritTh', 'psyCog', 'psyAnxDep','psySelf',
                                        'psyPerc', 'psySom', 'psyAddict', 'psySpi', 'psyPolit')], replace=T)
@@ -285,7 +286,7 @@ SCREEN_df$brainInjuryY1[is.na(SCREEN_df$brainInjuryY1)]<-2
 
 
 CONSP_df$email <- gsub(" ","",tolower(CONSP_df$email))
-CONSP_df <- CONSP_df[!duplicated(CONSP_df$email),]
+CONSP_df <- CONSP_df[!duplicated(CONSP_df$email, fromLast = T),]
 tmp1 <- merge(CONSP_df, SCREEN_df[,c('email','sex', 'age', 'diagMDep', 'diagBP', 'diagScz', 'diagADHD', 'diagASD','diagOCD',
                                     'diagOther', 'brainInjuryY1', 'DP', 'OLIFE_totLog', 'PDI_totalLog', 'SEPI_tot','SEPI_tot_drug')], by.x ='email', all=F)
 
