@@ -123,7 +123,7 @@ fdata_df$diagScz[is.na(fdata_df$diagScz)] <- 2
 fdata_df$diagOCD[is.na(fdata_df$diagOCD)] <- 2
 fdata_df$diagOther[is.na(fdata_df$diagOther)] <- 2
 
-
+ 
 
 
 NFU <- fdata_df

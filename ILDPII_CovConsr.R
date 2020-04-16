@@ -80,7 +80,7 @@ covid19$email <- gsub(" ","",covid19$email)
 
 load('/Users/alebedev/Documents/Projects/HUD/HUD_final_mergedApril2020.rda')
 
-
+ 
 ddd <- merge(covid19, ALLSCR, by='email')
 cor(ddd$DP, ddd$score1)
 

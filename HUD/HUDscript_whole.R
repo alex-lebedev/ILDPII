@@ -529,7 +529,7 @@ restab <- createTable(res, hide.no = "2", hide =c(Sex = "man", Alcohol = "0", To
 
 #print table
 print(restab, which.table = "descr", header.labels = c(p.overall = "p"))
-
+ 
 #export table
 export2html(restab, file='~/Downloads/descriptives1.html', header.labels = c(p.overall = "p"))
 

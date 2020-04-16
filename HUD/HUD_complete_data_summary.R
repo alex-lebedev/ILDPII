@@ -671,7 +671,7 @@ SCREEN_df$raads_anyLog[which(SCREEN_df$raads_anyLog==-Inf)] <- 0
 SCRFU_df$raads_anyLog[which(SCRFU_df$raads_anyLog==-Inf)] <- 0
 CONSP_df$raads_anyLog[which(CONSP_df$raads_anyLog==-Inf)] <- 0
 HUDMAIN_df$raads_anyLog[which(HUDMAIN_df$raads_anyLog==-Inf)] <- 0
-
+ 
 
 # Clean education:
 SCREEN_df$education<-tolower(SCREEN_df$education)

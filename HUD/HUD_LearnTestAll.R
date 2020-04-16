@@ -1,5 +1,5 @@
 
-
+ 
 # Pupillometry:
 load('/Users/alebedev/Documents/Projects/HUD/pupillometry/HUD_RALT_pupillometry_df.rda')
 ids <- unique(HUD_RALT_pupillometry_df$subject)

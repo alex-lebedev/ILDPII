@@ -1,5 +1,5 @@
 # HUD modeling.
-
+ 
 rm(list=ls())
 library(rstan)
 rstan_options(auto_write = TRUE)
