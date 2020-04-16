@@ -369,7 +369,6 @@ ALLSCR <- ALLSCR[, !names(ALLSCR) %in% c('email')]
 ALLFU_wDemogr <- ALLFU_wDemogr[, !names(ALLFU_wDemogr) %in% c('email')] 
 ALLEBS_wDemogr <- ALLEBS_wDemogr[, !names(ALLEBS_wDemogr) %in% c('email')] 
 
-
 save('ALLSCR','ALLFU_wDemogr','ALLEBS_wDemogr', file='/Users/alebedev/Documents/Projects/ILDPII/AndresOtilia_anonymized.rda')
 
 
