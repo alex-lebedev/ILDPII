@@ -53,10 +53,10 @@ ALLEBS_wDemogr$EBS_polit_transformed <- bestNormalize(ALLEBS_wDemogr$EBS_polit)$
 
 fitCONS5 <- (lm(CONS5~PSY_prox, data=ALLFU_ocean_wDemogr))
 summary(fitCONS5)
-# The effect is still there even if we regress-out user/non-user group effects:
-fitCONS5 <- (lm(CONS5~PSY_prox+PSY_group, data=ALLFU_ocean_wDemogr))
+# The effect is still there even if we regress-out demographics and user/non-user group effects:
+fitCONS5 <- (lm(CONS5~age+sex+PSY_group+PSY_prox, data=ALLFU_ocean_wDemogr))
 summary(fitCONS5)
-# With adjustments:
+# With adjustments for other drugs:
 fitCONS5.adj <- (lm(CONS5~age+sex+ALC_prox+TOB_prox+CAN_prox+MDMA_prox+STIM_prox+OPI_prox+PSY_prox, data=ALLFU_ocean_wDemogr))
 summary(fitCONS5.adj)
 
@@ -67,9 +67,13 @@ summary(fitCONS5.adj)
 # EBS-polit (no adjustments):
 fitEBSpolit <- (lm(EBS_polit_transformed~PSY_prox, data=ALLEBS_wDemogr))
 summary(fitEBSpolit)
-# EBS-polit (with adjustments):
+# The effect is still there even if we regress-out demographics and user/non-user group effects:
+fitEBSpolit <- (lm(EBS_polit_transformed~age+sex+PSY_group+PSY_prox, data=ALLEBS_wDemogr))
+summary(fitEBSpolit)
+# EBS-polit (with adjustments for other drugs):
 fitEBSpolit.adj <- (lm(EBS_polit_transformed~age+sex+ALC_prox+TOB_prox+CAN_prox+MDMA_prox+STIM_prox+OPI_prox+PSY_prox, data=ALLEBS_wDemogr))
 summary(fitEBSpolit.adj)
+
 
 # EBS-evid (no adjustments):
 fitEBSevid <- (lm(EBS_evid_transformed~PSY_prox, data=ALLEBS_wDemogr))
