@@ -123,10 +123,9 @@ fdata_df$diagBP[is.na(fdata_df$diagBP)] <- 2
 fdata_df$diagScz[is.na(fdata_df$diagScz)] <- 2
 fdata_df$diagOCD[is.na(fdata_df$diagOCD)] <- 2
 fdata_df$diagOther[is.na(fdata_df$diagOther)] <- 2
-NFU <- fdata_df
+NFU_DAF <- fdata_df
 
 # PSCAN:
-# New Follow-up:
 fdata_raw <- read.xlsx2(paste('~/Downloads/pscan.xlsx',sep=''),2, stringsAsFactors=F)
 scannedIDs <- read.xlsx2(paste('~/Downloads/ILDPII_scanning.xlsx',sep=''),1, stringsAsFactors=F)[,c('study.ID', 'email')]
 
@@ -198,12 +197,17 @@ fdata_df$TOB_age[fdata_df$TOB_age>80] <- NA
 fdata_df$CAN_age[fdata_df$CAN_age>80] <- NA
 fdata_df$OPI_age[fdata_df$OPI_age>80] <- NA
 fdata_df$MDMA_age[fdata_df$MDMA_age>80] <- NA
-PSCAN <- fdata_df
-PSCAN$study.ID <- gsub(" ","",PSCAN$study.ID)
+PSCAN_DAF <- fdata_df
+PSCAN_DAF$study.ID <- gsub(" ","",PSCAN_DAF$study.ID)
 scannedIDs$study.ID <- gsub(" ","",scannedIDs$study.ID)
-PSCAN <- merge(scannedIDs,PSCAN, by='study.ID')
-PSCAN$email <- gsub(" ","",PSCAN$email)
+PSCAN_DAF <- merge(scannedIDs,PSCAN_DAF, by='study.ID')
+PSCAN_DAF$email <- gsub(" ","",PSCAN_DAF$email)
 
+PSCAN_DAF$O <- NA
+PSCAN_DAF$C <- NA
+PSCAN_DAF$E <- NA
+PSCAN_DAF$A <- NA
+PSCAN_DAF$N <- NA
 
 ############################################################
 ############################################################
@@ -330,9 +334,9 @@ ALLSCR <- ALLSCR[, !names(ALLSCR) %in% exCols]
 
 
 
-PSCAN_wDemogr <- merge(PSCAN, ALLSCR[c('email',colnames(ALLSCR)[!is.element(colnames(ALLSCR),colnames(PSCAN))])], by='email')
+PSCAN_wDemogr <- merge(PSCAN_DAF, ALLSCR[c('email',colnames(ALLSCR)[!is.element(colnames(ALLSCR),colnames(PSCAN_DAF))])], by='email')
 
-NFU_new <- subset(NFU, is.element(NFU$email,SCRFU_df$email)==F)
+NFU_new <- subset(NFU_DAF, is.element(NFU_DAF$email,SCRFU_df$email)==F)
 PSCAN_wDemogr_new <- subset(PSCAN_wDemogr, is.element(PSCAN_wDemogr$email,SCRFU_df$email)==F)
 
 colselFU <- c("email", "CONS_public","CONS_polit","CONS_monit","CONS_connect",
@@ -357,19 +361,40 @@ ALLFU <- ALLFU[!duplicated(ALLFU$email,fromLast = T),]
 ALLFU_wDemogr <- merge(ALLFU, ALLSCR[c('email',colnames(ALLSCR)[!is.element(colnames(ALLSCR),colnames(ALLFU))])], by='email' , all=T)
 ALLFU_wDemogr <- ALLFU_wDemogr[!is.na(ALLFU_wDemogr$CONS5),]
 
-extraEBS <- subset(PSCAN_wDemogr,is.element(PSCAN_wDemogr$email,NFU$email)==F)
-colselEBS <- colnames(NFU)[is.element(colnames(NFU),colnames(extraEBS))]
+# OCEAN:
+colselFU_ocean <- c(colselFU, 'O', 'C', 'E', 'A', 'N')
+ALLFU_ocean <- rbind(NFU_DAF[,colselFU_ocean],CONSP_df[,colselFU_ocean])
+ALLFU_ocean$ALC_freqprox <- apply(scale(ALLFU_ocean[,c('ALC_freq', 'ALC_prox')]),1,mean)
+ALLFU_ocean$TOB_freqprox <- apply(scale(ALLFU_ocean[,c('TOB_freq', 'TOB_prox')]),1,mean)
+ALLFU_ocean$CAN_freqprox <- apply(scale(ALLFU_ocean[,c('CAN_freq', 'CAN_prox')]),1,mean)
+ALLFU_ocean$MDMA_freqprox <- apply(scale(ALLFU_ocean[,c('MDMA_freq', 'MDMA_prox')]),1,mean)
+ALLFU_ocean$STIM_freqprox <- apply(scale(ALLFU_ocean[,c('STIM_freq', 'STIM_prox')]),1,mean)
+ALLFU_ocean$OPI_freqprox <- apply(scale(ALLFU_ocean[,c('OPI_freq', 'OPI_prox')]),1,mean)
+ALLFU_ocean$PSY_freqprox <- apply(scale(ALLFU_ocean[,c('PSY_freq', 'PSY_prox')]),1,mean)
+ALLFU_ocean <- ALLFU_ocean[!duplicated(ALLFU_ocean$email,fromLast = T),]
 
-ALLEBS <- rbind(NFU[,colselEBS],extraEBS[,colselEBS])
+
+extraEBS <- subset(PSCAN_wDemogr,is.element(PSCAN_wDemogr$email,NFU$email)==F)
+colselEBS <- colnames(NFU_DAF)[is.element(colnames(NFU_DAF),colnames(extraEBS))]
+
+ALLEBS <- rbind(NFU_DAF[,colselEBS],extraEBS[,colselEBS])
 ALLEBS_wDemogr <- merge(ALLEBS, ALLSCR[,c('email',colnames(ALLSCR)[!is.element(colnames(ALLSCR),colselEBS)])], by='email' , all=T)
 ALLEBS_wDemogr <- ALLEBS_wDemogr[!is.na(ALLEBS_wDemogr$EBS_feel),]
+
+ALLFU_ocean_wDemogr <- merge(ALLFU_ocean, ALLSCR[,c('email',colnames(ALLSCR)[!is.element(colnames(ALLSCR),colnames(ALLFU_ocean))])], by='email' , all=T)
+ALLFU_ocean_wDemogr <- ALLFU_ocean_wDemogr[!is.na(ALLFU_ocean_wDemogr$O),]
+
 
 # Anonymize
 ALLSCR <- ALLSCR[, !names(ALLSCR) %in% c('email')]
 ALLFU_wDemogr <- ALLFU_wDemogr[, !names(ALLFU_wDemogr) %in% c('email')] 
-ALLEBS_wDemogr <- ALLEBS_wDemogr[, !names(ALLEBS_wDemogr) %in% c('email')] 
+ALLEBS_wDemogr <- ALLEBS_wDemogr[, !names(ALLEBS_wDemogr) %in% c('email')]
+ALLFU_ocean_wDemogr <- ALLFU_ocean_wDemogr[, !names(ALLFU_ocean_wDemogr) %in% c('email')]
 
-save('ALLSCR','ALLFU_wDemogr','ALLEBS_wDemogr', file='/Users/alebedev/Documents/Projects/ILDPII/AndresOtilia_anonymized.rda')
+
+
+
+save('ALLSCR','ALLFU_ocean_wDemogr','ALLEBS_wDemogr', file='/Users/alebedev/Dropbox/AndresOtilia_anonymized.rda')
 
 
 
