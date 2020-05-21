@@ -1,10 +1,7 @@
 # ILDPII
 
-### Pilot_1
-(pilot Study 1 materials)
 
-
-### Improtant files:
+### rStan models:
  * .../stan_models/RW_instr_multipleSubj.stan (Instructed version of Stan Rescorla-Wagner model, hierarchical)
  * .../stan_models/RW_uninstr_multipleSubj.stan (Uninstructed version of Stan Rescorla-Wagner model, hierarchical)
  * .../data/rdata.rda (Raw data containing information for 1 subject)
