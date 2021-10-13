@@ -1,6 +1,7 @@
 # Alternative Beliefs in Drug Users: Fact and Fiction
 # Psykologprogrammet, termin 6, 2020
 # Students: Andrés Cabrera & Otilia Horntvedt 
+# Supervisor: Alexander Lebedev
 
 rm(list=ls())
 
